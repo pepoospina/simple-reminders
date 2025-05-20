@@ -19,7 +19,21 @@ export const buildApp = (router?: express.Router): express.Application => {
     return app;
 };
 
-const controller: RequestHandler = async (req, res) => {
+const createReminderController: RequestHandler = async (req, res) => {
+    res.status(200).send({
+        success: true,
+        data: 'hello world',
+    });
+};
+
+const getReminderController: RequestHandler = async (req, res) => {
+    res.status(200).send({
+        success: true,
+        data: 'hello world',
+    });
+};
+
+const deleteReminderController: RequestHandler = async (req, res) => {
     res.status(200).send({
         success: true,
         data: 'hello world',
@@ -27,7 +41,11 @@ const controller: RequestHandler = async (req, res) => {
 };
 
 export const router = Router();
-router.get('/auth/me', controller);
+
+router.post('/reminders', createReminderController);
+router.get('/reminders', getReminderController);
+router.delete('/reminders/{id}', deleteReminderController);
 
 const app = buildApp();
+
 export const hanlder = serverlessExpress({ app });
