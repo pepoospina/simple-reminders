@@ -1,18 +1,20 @@
 {
-  "name": "hello_world",
+  "name": "simple-reminders",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "Simple reminders app",
   "main": "app.js",
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
+    "launch:dynamo": "sudo docker run -p 8000:8000 amazon/dynamodb-local",
     "unit": "jest",
     "lint": "eslint '*.ts' --quiet --fix",
     "build": "tsc",
     "build:watch": "tsc -w",
     "test": "npm run build && npm run unit",
-    "deploy": "sam build && sam deploy"
+    "deploy": "sam build && sam deploy",
+    "local:list-reminders": "AWS_ACCESS_KEY_ID=accessKeyId AWS_SECRET_ACCESS_KEY=secretAccessKey aws dynamodb scan --table-name Reminders --endpoint-url http://localhost:8000 --region eu-north-1"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.812.0",

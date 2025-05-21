@@ -1,5 +1,6 @@
-import { expect, describe, it } from '@jest/globals';
+import { expect, describe, it, beforeAll } from '@jest/globals';
 import { createServices } from '../../src/services';
+import { resetDB } from './db.utils';
 
 describe('Create reminder', function () {
   const services = createServices({
@@ -7,6 +8,10 @@ describe('Create reminder', function () {
       region: 'eu-north-1',
       endpoint: 'http://localhost:8000',
     },
+  });
+
+  beforeAll(async () => {
+    await resetDB();
   });
 
   it('verifies create', async () => {
