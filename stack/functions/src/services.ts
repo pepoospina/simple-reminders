@@ -30,12 +30,14 @@ export const createServices = (config: ServicesConfig): Services => {
 
 
 export const attachServices: RequestHandler = async (request, response, next) => {
-  const config = {
+  const config = process.env.AWS_SAM_LOCAL === 'true' ? {
     region: process.env.AWS_REGION as string,
     endpoint: process.env.DYNAMO_ENDPOINT,
+  } : {
+    region: process.env.AWS_REGION as string,
   };
   
-  if (DEBUG) console.log('Attach services', config);
+  if (DEBUG) console.log('Attach services', process.env);
 
   (request as any).services = createServices({
     dynamo: config,
