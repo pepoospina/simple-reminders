@@ -22,3 +22,10 @@ export const getRemindersController: RequestHandler = async (req, res) => {
 
   res.json(reminders);
 };
+
+export const deleteReminderController: RequestHandler = async (req, res) => {
+  const services = getServices(req);
+  await services.reminders.repo.deleteReminder(req.params.id);
+
+  res.json({});
+};

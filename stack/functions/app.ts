@@ -6,7 +6,7 @@ dotenv.config();
 import cors from 'cors';
 import express, { Router, Application } from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
-import { createReminderController, getRemindersController } from './src/reminders.controllers';
+import { createReminderController, getRemindersController, deleteReminderController } from './src/reminders.controllers';
 import { attachServices } from './src/services';
 
 export const buildApp = (router?: Router): Application => {
@@ -32,6 +32,7 @@ export const router = Router();
 
 router.post('/reminders', createReminderController);
 router.get('/reminders', getRemindersController);
+router.delete('/reminders/:id', deleteReminderController);
 
 const app = buildApp(router);
 
