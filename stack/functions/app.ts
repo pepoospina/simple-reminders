@@ -46,6 +46,6 @@ router.post('/reminders', createReminderController);
 router.get('/reminders', getReminderController);
 router.delete('/reminders/{id}', deleteReminderController);
 
-const app = buildApp();
+const app = buildApp(router);
 
-export const hanlder = serverlessExpress({ app });
+export const handler = serverlessExpress({ app });

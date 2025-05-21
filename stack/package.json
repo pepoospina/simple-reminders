@@ -1,0 +1,13 @@
+{
+  "name": "hello_world",
+  "version": "1.0.0",
+  "description": "hello world sample for NodeJS",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "scripts": {
+    "start": "sam local start-api --profile AdministratorAccess-245826160985",
+    "deploy": "sam build && sam deploy --profile AdministratorAccess-245826160985"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
