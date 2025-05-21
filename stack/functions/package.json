@@ -15,18 +15,23 @@
         "deploy": "sam build && sam deploy"
     },
     "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.812.0",
+        "@aws-sdk/lib-dynamodb": "^3.814.0",
         "@codegenie/serverless-express": "^4.16.0",
         "@types/cors": "^2.8.18",
         "@types/express": "^5.0.2",
         "cors": "^2.8.5",
         "esbuild": "^0.14.14",
-        "express": "^5.1.0"
+        "express": "^5.1.0",
+        "uuid": "^11.1.0",
+        "yup": "^1.6.1"
     },
     "devDependencies": {
         "@jest/globals": "^29.2.0",
         "@types/aws-lambda": "^8.10.92",
         "@types/jest": "^29.2.0",
         "@types/node": "^20.5.7",
+        "@types/uuid": "^10.0.0",
         "@typescript-eslint/eslint-plugin": "^5.10.2",
         "@typescript-eslint/parser": "^5.10.2",
         "eslint": "^8.8.0",
