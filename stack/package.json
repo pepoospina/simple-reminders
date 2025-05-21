@@ -5,7 +5,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "start": "sam local start-api --profile AdministratorAccess-245826160985",
+    "start": "sudo sam local start-api",
     "deploy": "sam build && sam deploy --profile AdministratorAccess-245826160985"
   },
   "dependencies": {},
