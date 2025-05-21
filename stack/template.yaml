@@ -65,6 +65,17 @@ Resources:
         EntryPoints:
           - app.ts
 
+  RemindersTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: Reminders
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

@@ -8,55 +8,12 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "env": {
-        "NODE_ENV": "test",
-        "FIRESTORE_EMULATOR_HOST": "127.0.0.1:8080",
-        "LOG_LEVEL_MSG": "debug",
-        "LOG_LEVEL_OBJ": "error",
-        "USE_REAL_TWITTERX": "false",
-        "USE_REAL_EMAIL": "false",
-        "USE_REAL_LINKS": "false",
-        "APP_URL": "http://localhost:3000"
+        "DUMMY": "true"
       },
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/mocha",
-      "args": ["--config", "./.mocharc.json"],
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--config", "./jest.config.ts"],
       "outputCapture": "std",
       "console": "integratedTerminal"
-    },
-    {
-      "name": "script",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "ts-node",
-      "env": {
-        // "NODE_ENV": "local",
-        // "THREAD_URL": "https://x.com/XH_Lee23/status/1921876557796147620",
-        // "PROFILE_URL": "https://x.com/XH_Lee23",
-        // "UNTIL_TIMESTAMP": "1744764318000",
-        // "UNTIL_TIMESTAMP": "1744245918000",
-        // "EXPECTED_AMOUNT": "1"
-        "CLUSTER_ID": "us-politics",
-        "PERIOD": "day"
-      },
-      "args": [
-        "--project",
-        "./tsconfig.scripts.json",
-        // "./scripts/012-fetch-account.ts"
-        // "./scripts/011b-fetch-twitter-thread.ts"
-        // "./scripts/011c-fetch-twitter-timeline.ts"
-        // "./scripts/015-run-fetch-non-user-accounts.ts"
-        "./scripts/016-build-summay.ts"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "name": "attach",
-      "type": "node",
-      "request": "attach",
-      "port": 9229,
-      "restart": true,
-      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

@@ -7,8 +7,8 @@ export class RemindersRepository {
   private readonly tableName = 'Reminders';
   private readonly client: DynamoDBDocumentClient;
 
-  constructor() {
-    const dbclient = new DynamoDBClient({});
+  constructor(config: { region: string; endpoint?: string }) {
+    const dbclient = new DynamoDBClient(config);
     this.client = DynamoDBDocumentClient.from(dbclient);
   }
 
