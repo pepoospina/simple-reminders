@@ -3,8 +3,20 @@ import "./App.css";
 import { DateInput, MaskedInput } from "grommet";
 import { useEffect, useMemo, useState } from "react";
 import { Reminder } from "./types/reminders.types";
+import { CreateReminderPayload } from "./types/reminders.types";
+import { Trash } from "grommet-icons";
 
-const API_URL = "http://localhost:3000";
+// Helper function to format date to show month, day and time without seconds
+const formatReminderDate = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return (
+    date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+    " " +
+    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+  );
+};
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const DEFAULT_TIME = "9:00";
 
 function App() {
@@ -28,7 +40,12 @@ function App() {
   };
 
   const updateReminders = () => {
-    fetch(`${API_URL}/reminders`)
+    fetch(`${API_URL}/reminders`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => setReminders(data));
   };
@@ -45,19 +62,30 @@ function App() {
   };
 
   const addReminder = () => {
+    const payload: CreateReminderPayload = {
+      content,
+      date: new Date(dateTime).getTime(),
+    };
+
     fetch(`${API_URL}/reminders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        content: content,
-        date: dateTime,
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => res.json())
       .then((data) => updateReminders())
-      .then(() => reset());
+      .then(() => reset())
+      .then(() => updateReminders());
+  };
+
+  const deleteReminder = (id: string) => {
+    fetch(`${API_URL}/reminders/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => updateReminders());
   };
 
   const isValid = useMemo(() => {
@@ -83,12 +111,12 @@ function App() {
   return (
     <Box
       align="center"
-      justify="center"
-      style={{ height: "100vh" }}
+      style={{ height: "100vh", width: "100%" }}
+      pad="medium"
       className="App"
     >
       <Heading level={2}>Simple email reminders</Heading>
-      <Box gap="small">
+      <Box style={{ width: "100%" }} gap="small">
         <Box gap="small">
           <TextInput
             value={content}
@@ -126,12 +154,55 @@ function App() {
           </Box>
         </Box>
 
-        <Button primary label="Add" onClick={onAdd} />
+        <Button
+          margin={{ top: "medium" }}
+          primary
+          label="Add"
+          onClick={onAdd}
+        />
         <Text size="small">
           You will receive an email 10 min before the reminder
         </Text>
       </Box>
-      {reminders.length > 0 && <Heading level={4}>Upcoming reminders</Heading>}
+      {reminders.length > 0 && (
+        <Box gap="medium" style={{ width: "100%" }} margin={{ top: "large" }}>
+          <Heading level={3}>Upcoming reminders</Heading>
+          <Box gap="medium" style={{ width: "100%" }}>
+            {reminders.map((reminder) => (
+              <Box
+                gap="small"
+                key={reminder.id}
+                pad={{
+                  top: "small",
+                  bottom: "medium",
+                  left: "small",
+                  right: "small",
+                }}
+                style={{
+                  backgroundColor: "#F9FAFB",
+                  borderRadius: "8px",
+                }}
+                align="start"
+              >
+                <Box
+                  style={{ width: "100%" }}
+                  direction="row"
+                  justify="between"
+                >
+                  <Text style={{ fontWeight: "800", textAlign: "left" }}>
+                    {formatReminderDate(reminder.date)}
+                  </Text>
+                  <Button
+                    icon={<Trash color="brand" />}
+                    onClick={() => deleteReminder(reminder.id)}
+                  />
+                </Box>
+                <Text>{reminder.content}</Text>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }
