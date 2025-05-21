@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateReminderPayload, Reminder } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
 
+const DEBUG = true;
+
 export class RemindersRepository {
   private readonly tableName = 'Reminders';
   private readonly client: DynamoDBDocumentClient;
@@ -11,9 +13,12 @@ export class RemindersRepository {
   constructor(config: { region: string; endpoint?: string }) {
     const clientConfig = { ...config };
 
+    if (DEBUG) console.log('Construct RemindersRepository:', config);
+
     // Add dummy credentials when using a local endpoint
-    if (config.endpoint === 'http://localhost:8000') {
-      this.client = createLocalDynamoClient();
+    if (config.endpoint) {
+      if (DEBUG) console.log('Using local DynamoDB endpoint:', config.endpoint);
+      this.client = createLocalDynamoClient(config.endpoint);
     } else {
       const dbclient = new DynamoDBClient(clientConfig);
       this.client = DynamoDBDocumentClient.from(dbclient);

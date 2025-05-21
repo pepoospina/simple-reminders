@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 import cors from 'cors';
 import express, { Router, Application } from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
@@ -8,7 +13,7 @@ export const buildApp = (router?: Router): Application => {
     const app = express();
 
     app.use(express.json());
-    app.use(attachServices());
+    app.use(attachServices);
     app.use(
         cors({
             origin: true,
@@ -27,7 +32,6 @@ export const router = Router();
 
 router.post('/reminders', createReminderController);
 router.get('/reminders', getRemindersController);
-
 
 const app = buildApp(router);
 

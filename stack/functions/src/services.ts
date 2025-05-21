@@ -13,6 +13,8 @@ export interface ServicesConfig {
   };
 }
 
+const DEBUG = true;
+
 export const createServices = (config: ServicesConfig): Services => {
   const repo = new RemindersRepository(config.dynamo);
   return {
@@ -21,10 +23,15 @@ export const createServices = (config: ServicesConfig): Services => {
 };
 
 export const attachServices: RequestHandler = async (request, response, next) => {
+  const config = {
+    region: process.env.AWS_REGION || 'eu-north-1',
+    endpoint: process.env.DYNAMO_ENDPOINT,
+  };
+
+  if (DEBUG) console.log('Attach services', config);
+
   (request as any).services = createServices({
-    dynamo: {
-      region: process.env.AWS_REGION || 'eu-north-1',
-    },
+    dynamo: config,
   });
 
   return next();
