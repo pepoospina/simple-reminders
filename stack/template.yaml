@@ -11,6 +11,37 @@ Globals:
     Timeout: 3
 
 Resources:
+  WebAppBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "simple-reminders-app-bucket-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      # AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  WebAppBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Delete
+    Properties:
+      Bucket: !Ref WebAppBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::${WebAppBucket}/*"
+
   SimpleReminderAPI:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -47,3 +78,6 @@ Outputs:
   SimpleReminderFunctionIamRole:
     Description: "Implicit IAM Role created for SimpleReminder function"
     Value: !GetAtt SimpleReminderAPIRole.Arn
+  WebAppBucketURL:
+    Description: "URL for the S3 bucket hosting the React application"
+    Value: !Sub "http://${WebAppBucket}.s3-website.${AWS::Region}.amazonaws.com"

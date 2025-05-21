@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "start": "sudo sam local start-api",
-    "deploy": "sam build && sam deploy --profile AdministratorAccess-245826160985"
+    "deploy": "sam build && sam deploy --profile AdministratorAccess-245826160985",
+    "deploy-webapp": "aws --profile AdministratorAccess-245826160985 s3 sync ./app/build/ s3://simple-reminders-app-bucket-245826160985-eu-north-1"
   },
   "dependencies": {},
   "devDependencies": {}
