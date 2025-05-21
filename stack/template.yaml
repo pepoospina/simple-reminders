@@ -56,6 +56,9 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: any
+      Environment:
+        Variables:
+          DYNAMO_ENDPOINT: http://host.docker.internal:8000
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:

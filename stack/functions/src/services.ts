@@ -2,6 +2,11 @@ import { RequestHandler, Request } from 'express';
 import { RemindersService } from './reminders.service';
 import { RemindersRepository } from './reminders.repository';
 
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 export interface Services {
   reminders: RemindersService;
 }
@@ -22,12 +27,14 @@ export const createServices = (config: ServicesConfig): Services => {
   };
 };
 
+
+
 export const attachServices: RequestHandler = async (request, response, next) => {
   const config = {
-    region: process.env.AWS_REGION || 'eu-north-1',
+    region: process.env.AWS_REGION as string,
     endpoint: process.env.DYNAMO_ENDPOINT,
   };
-
+  
   if (DEBUG) console.log('Attach services', config);
 
   (request as any).services = createServices({
