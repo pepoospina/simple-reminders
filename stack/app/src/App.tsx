@@ -16,7 +16,7 @@ const formatReminderDate = (timestamp: number): string => {
   );
 };
 
-const API_URL = "http://localhost:3000";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const DEFAULT_TIME = "9:00";
 
 function App() {

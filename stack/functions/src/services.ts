@@ -37,7 +37,7 @@ export const attachServices: RequestHandler = async (request, response, next) =>
     region: process.env.AWS_REGION as string,
   };
   
-  if (DEBUG) console.log('Attach services', process.env);
+  if (DEBUG) console.log('Attach services', config);
 
   (request as any).services = createServices({
     dynamo: config,

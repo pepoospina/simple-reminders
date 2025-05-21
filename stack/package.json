@@ -10,7 +10,7 @@
     "build": "sam build",
     "start": "AWS_ACCESS_KEY_ID=accessKeyId AWS_SECRET_ACCESS_KEY=secretAccessKey sudo -E sam local start-api --env-vars env.json --region eu-north-1 --docker-network sam-network",
     "deploy": "sam build && sam deploy --profile AdministratorAccess-245826160985",
-    "deploy-webapp": "aws --profile AdministratorAccess-245826160985 s3 sync ./app/build/ s3://simple-reminders-app-bucket-245826160985-eu-north-1"
+    "deploy-webapp": "cd app && yarn build && cd .. && aws --profile AdministratorAccess-245826160985 s3 sync ./app/build/ s3://simple-reminders-app-bucket-245826160985-eu-north-1"
   },
   "dependencies": {},
   "devDependencies": {}
