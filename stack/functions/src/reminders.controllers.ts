@@ -15,3 +15,10 @@ export const createReminderController: RequestHandler = async (req, res) => {
 
   res.json(reminder);
 };
+
+export const getRemindersController: RequestHandler = async (req, res) => {
+  const services = getServices(req);
+  const reminders = await services.reminders.repo.getReminders();
+
+  res.json(reminders);
+};

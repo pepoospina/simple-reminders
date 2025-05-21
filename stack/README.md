@@ -7,4 +7,4 @@
 ## TIMESHEET
 
 - May 20: 0.45h - Setup api from template
-- May 21: 0.30h - Test API deployment
+- May 21: 4.30h - Deploy, connect frontend, build tests, connect DB

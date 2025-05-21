@@ -1,11 +1,14 @@
 import cors from 'cors';
-import express, { RequestHandler, Router } from 'express';
+import express, { Router, Application } from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
+import { createReminderController, getRemindersController } from './src/reminders.controllers';
+import { attachServices } from './src/services';
 
-export const buildApp = (router?: express.Router): express.Application => {
+export const buildApp = (router?: Router): Application => {
     const app = express();
 
     app.use(express.json());
+    app.use(attachServices());
     app.use(
         cors({
             origin: true,
@@ -19,32 +22,12 @@ export const buildApp = (router?: express.Router): express.Application => {
     return app;
 };
 
-const createReminderController: RequestHandler = async (req, res) => {
-    res.status(200).send({
-        success: true,
-        data: 'hello world',
-    });
-};
-
-const getReminderController: RequestHandler = async (req, res) => {
-    res.status(200).send({
-        success: true,
-        data: 'hello world',
-    });
-};
-
-const deleteReminderController: RequestHandler = async (req, res) => {
-    res.status(200).send({
-        success: true,
-        data: 'hello world',
-    });
-};
 
 export const router = Router();
 
 router.post('/reminders', createReminderController);
-router.get('/reminders', getReminderController);
-router.delete('/reminders/{id}', deleteReminderController);
+router.get('/reminders', getRemindersController);
+
 
 const app = buildApp(router);
 
