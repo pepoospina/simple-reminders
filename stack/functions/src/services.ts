@@ -30,9 +30,9 @@ export interface ServicesConfig {
 const DEBUG = true;
 
 export const createServices = (config: ServicesConfig): Services => {
-  const repo = new RemindersRepository(config.dynamo);
-  const reminders = new RemindersService(repo);
   const time = new TimeService();
+  const repo = new RemindersRepository(config.dynamo, time);
+  const reminders = new RemindersService(repo);
   const email = new EmailService(config.email);
   const notifications = new NotificationsService(reminders, email, time, config.notifications);
 

@@ -3,6 +3,7 @@ import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCo
 import { v4 as uuidv4 } from 'uuid';
 import { CreateReminderPayload, Reminder, STATUS } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
+import { TimeService } from './time.service';
 
 const DEBUG = true;
 
@@ -10,7 +11,7 @@ export class RemindersRepository {
   private readonly tableName = 'Reminders';
   private readonly client: DynamoDBDocumentClient;
 
-  constructor(config: { region: string; endpoint?: string }) {
+  constructor(config: { region: string; endpoint?: string }, protected time: TimeService) {
     const clientConfig = { ...config };
 
     // Add dummy credentials when using a local endpoint
@@ -28,6 +29,7 @@ export class RemindersRepository {
       ...reminder,
       id: uuidv4(),
       status: STATUS.PENDING,
+      createdAt: this.time.now(),
     };
 
     const params = {
@@ -53,34 +55,38 @@ export class RemindersRepository {
     if (DEBUG) console.log('Getting reminders', filters ? `with filters: ${JSON.stringify(filters)}` : '');
 
     try {
+      let reminders: Reminder[] = [];
+      
       if (!filters) {
         const scanParams = {
           TableName: this.tableName,
         };
 
         const result = await this.client.send(new ScanCommand(scanParams));
-        return (result.Items as Reminder[]) || [];
+        reminders = (result.Items as Reminder[]) || [];
+      } else {
+        const queryParams: any = {
+          TableName: this.tableName,
+          IndexName: 'DateIndex',
+          KeyConditionExpression: '#status = :status',
+          ExpressionAttributeNames: {
+            '#status': 'status',
+            '#date': 'date',
+          },
+          ExpressionAttributeValues: {
+            ':status': filters.status || 'PENDING', // Default to PENDING if not provided
+          },
+        };
+
+        queryParams.KeyConditionExpression += ' AND #date <= :date';
+        queryParams.ExpressionAttributeValues[':date'] = filters.before;
+
+        const result = await this.client.send(new QueryCommand(queryParams));
+        reminders = (result.Items as Reminder[]) || [];
       }
-
-      const queryParams: any = {
-        TableName: this.tableName,
-        IndexName: 'DateIndex',
-        KeyConditionExpression: '#status = :status',
-        ExpressionAttributeNames: {
-          '#status': 'status',
-          '#date': 'date',
-        },
-        ExpressionAttributeValues: {
-          ':status': filters.status || 'PENDING', // Default to PENDING if not provided
-        },
-      };
-
-      queryParams.KeyConditionExpression += ' AND #date <= :date';
-      queryParams.ExpressionAttributeValues[':date'] = filters.before;
-
-      const result = await this.client.send(new QueryCommand(queryParams));
-
-      return (result.Items as Reminder[]) || [];
+      
+      // Sort reminders by createdAt in descending order (most recent first)
+      return reminders.sort((a, b) => b.createdAt - a.createdAt);
     } catch (error) {
       console.error('Error getting reminders:', error);
       throw new Error('Failed to get reminders');
