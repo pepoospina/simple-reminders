@@ -58,7 +58,7 @@ Resources:
             Method: any
       Environment:
         Variables:
-          DYNAMO_ENDPOINT: http://host.docker.internal:8000
+          DYNAMO_ENDPOINT: ""
       Policies:
         - DynamoDBCrudPolicy:
             TableName: Reminders
@@ -89,10 +89,13 @@ Resources:
             Enabled: true
       Environment:
         Variables:
-          DYNAMO_ENDPOINT: http://host.docker.internal:8000
+          EMAIL_FROM: "noreply@pepo.is"
+          EMAIL_TO: "pepo.ospina@gmail.com"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: Reminders
+        - SESCrudPolicy:
+            IdentityName: "pepo.is"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:

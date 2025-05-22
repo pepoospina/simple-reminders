@@ -2,10 +2,7 @@ import { expect, describe, it, beforeAll } from '@jest/globals';
 import { createServices } from '../../src/services';
 import { resetDB } from './test.db.utils';
 import { Reminder, STATUS } from '../../src/types/reminders.types';
-
-const ONE_MINUTE = 1000 * 60;
-const ONE_HOUR = ONE_MINUTE * 60;
-const ONE_DAY = ONE_HOUR * 24;
+import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '../../src/time.service';
 
 describe('Create reminder', function () {
   let createResults: Reminder[];
