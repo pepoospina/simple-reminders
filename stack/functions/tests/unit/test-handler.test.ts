@@ -13,6 +13,13 @@ describe('Create reminder', function () {
       region: 'eu-north-1',
       endpoint: 'http://localhost:8000',
     },
+    email: {
+      from: 'test@example.com',
+      region: 'eu-north-1',
+    },
+    notifications: {
+      EMAIL_TO: 'test@example.com',
+    },
   });
 
   beforeAll(async () => {
@@ -22,12 +29,22 @@ describe('Create reminder', function () {
   it('creates two reminders', async () => {
     createResults = await Promise.all(
       [T0 - ONE_DAY - ONE_HOUR, T0 + 11 * ONE_MINUTE, T0 + 1 * ONE_HOUR].map(
-        async (date, ix) =>
-          await services.reminders.repo.createReminder({
+        async (date, ix) => {
+
+          const result = await services.reminders.repo.createReminder({
             content: `test reminder ${ix}`,
             date,
-            status: date <= T0 + 10 * ONE_MINUTE ? STATUS.DELIVERED : STATUS.PENDING,
-          }),
+          });
+
+          if (date <= T0 + 10 * ONE_MINUTE) {
+            await services.reminders.repo.updateReminder({
+              id: result.id,
+              status: STATUS.DELIVERED,
+            });
+          }
+
+          return result;
+        }
       ),
     );
 
