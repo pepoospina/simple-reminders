@@ -6,8 +6,10 @@ dotenv.config();
 import cors from 'cors';
 import express, { Router, Application } from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
-import { createReminderController, getRemindersController, deleteReminderController } from './src/reminders.controllers';
 import { attachServices } from './src/services';
+import { router } from './router';
+import { cronJob } from './cron.job';
+import { createServices } from './src/services';
 
 export const buildApp = (router?: Router): Application => {
     const app = express();
@@ -27,13 +29,14 @@ export const buildApp = (router?: Router): Application => {
     return app;
 };
 
-
-export const router = Router();
-
-router.post('/reminders', createReminderController);
-router.get('/reminders', getRemindersController);
-router.delete('/reminders/:id', deleteReminderController);
-
 const app = buildApp(router);
 
-export const handler = serverlessExpress({ app });
+export const config = process.env.AWS_SAM_LOCAL === 'true' ? {dynamo : {
+    region: process.env.AWS_REGION as string,
+    endpoint: process.env.DYNAMO_ENDPOINT,
+  }} : {dynamo : {
+    region: process.env.AWS_REGION as string,
+  }};
+
+export const api = serverlessExpress({ app });
+export const cron = cronJob(createServices(config));
