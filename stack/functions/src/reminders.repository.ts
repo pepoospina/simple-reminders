@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateReminderPayload, Reminder } from './types/reminders.types';
+import { CreateReminderPayload, Reminder, STATUS } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
 
 const DEBUG = true;
@@ -27,6 +27,7 @@ export class RemindersRepository {
     const reminderItem: Reminder = {
       ...reminder,
       id: uuidv4(),
+      status: STATUS.PENDING,
     };
 
     const params = {
@@ -76,11 +77,10 @@ export class RemindersRepository {
 
       queryParams.KeyConditionExpression += ' AND #date <= :date';
       queryParams.ExpressionAttributeValues[':date'] = filters.before;
-      
-      const result = await this.client.send(new QueryCommand(queryParams));
-      
-      return (result.Items as Reminder[]) || [];
 
+      const result = await this.client.send(new QueryCommand(queryParams));
+
+      return (result.Items as Reminder[]) || [];
     } catch (error) {
       console.error('Error getting reminders:', error);
       throw new Error('Failed to get reminders');
