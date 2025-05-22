@@ -5,7 +5,7 @@
   "author": "SAM CLI",
   "license": "MIT",
   "scripts": {
-    "launch:dynamo": "sudo docker network create sam-network && sudo docker run -p 8000:8000 --name dynamodb-local --network sam-network amazon/dynamodb-local",
+    "launch:dynamo": "sudo docker network inspect sam-network >/dev/null 2>&1 || sudo docker network create sam-network && sudo docker container inspect dynamodb-local >/dev/null 2>&1 && sudo docker start dynamodb-local || sudo docker run -p 8000:8000 --name dynamodb-local --network sam-network amazon/dynamodb-local",
     "init-db": "ts-node scripts/init-db.ts",
     "build": "sam build",
     "start": "AWS_ACCESS_KEY_ID=accessKeyId AWS_SECRET_ACCESS_KEY=secretAccessKey sudo -E sam local start-api --env-vars env.json --region eu-north-1 --docker-network sam-network",

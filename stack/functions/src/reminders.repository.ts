@@ -48,12 +48,11 @@ export class RemindersRepository {
     }
   }
 
-  async getReminders(filters?: { before?: number; status?: string }): Promise<Reminder[]> {
+  async getReminders(filters?: { before: number; status: string }): Promise<Reminder[]> {
     if (DEBUG) console.log('Getting reminders', filters ? `with filters: ${JSON.stringify(filters)}` : '');
 
     try {
-      // If no filters are provided, use scan to get all reminders
-      if (!filters || (filters.before === undefined && filters.status === undefined)) {
+      if (!filters) {
         const scanParams = {
           TableName: this.tableName,
         };
@@ -75,14 +74,9 @@ export class RemindersRepository {
         },
       };
 
-      if (filters.before !== undefined) {
-        queryParams.KeyConditionExpression += ' AND #date <= :date';
-        queryParams.ExpressionAttributeValues[':date'] = filters.before;
-      } else {
-        queryParams.KeyConditionExpression += ' AND #date <= :date';
-        queryParams.ExpressionAttributeValues[':date'] = Date.now() + 1000 * 60 * 60 * 24 * 365 * 10;
-      }
-
+      queryParams.KeyConditionExpression += ' AND #date <= :date';
+      queryParams.ExpressionAttributeValues[':date'] = filters.before;
+      
       const result = await this.client.send(new QueryCommand(queryParams));
       
       return (result.Items as Reminder[]) || [];

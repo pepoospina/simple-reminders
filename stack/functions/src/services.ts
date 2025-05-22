@@ -3,7 +3,7 @@ import { RemindersService } from './reminders.service';
 import { RemindersRepository } from './reminders.repository';
 
 import dotenv from 'dotenv';
-import { config } from '../app';
+import { config } from '../config';
 import { TimeService } from './time.service';
 
 // Load environment variables from .env file
