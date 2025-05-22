@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateReminderPayload, Reminder, STATUS } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
@@ -114,11 +114,20 @@ export class RemindersRepository {
     if (DEBUG) console.log('Updating reminder:', reminder);
     const params = {
       TableName: this.tableName,
-      Item: reminder,
+      Key: {
+        id: reminder.id
+      },
+      UpdateExpression: 'SET #status = :status',
+      ExpressionAttributeNames: {
+        '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':status': reminder.status
+      }
     };
 
     try {
-      await this.client.send(new PutCommand(params));
+      await this.client.send(new UpdateCommand(params));
     } catch (error) {
       console.error('Error updating reminder:', error);
       throw new Error('Failed to update reminder');

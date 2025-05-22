@@ -1,22 +1,12 @@
 import { Box, Button, Heading, Text, TextInput } from "grommet";
 import "./App.css";
-import { DateInput, MaskedInput } from "grommet";
+import { DateInput } from "grommet";
 import { useEffect, useMemo, useState } from "react";
 import { Reminder } from "./types/reminders.types";
 import { CreateReminderPayload } from "./types/reminders.types";
-import { Trash } from "grommet-icons";
+import { ReminderCard } from "./ReminderCard";
 
-// Helper function to format date to show month, day and time without seconds
-const formatReminderDate = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  return (
-    date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
-    " " +
-    date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-  );
-};
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+export const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 const DEFAULT_TIME = "9:00";
 
 function App() {
@@ -78,14 +68,6 @@ function App() {
         console.error(error);
         setAdding(false);
       });
-  };
-
-  const deleteReminder = (id: string) => {
-    fetch(`${API_URL}/reminders/${id}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((data) => updateReminders());
   };
 
   const isReminderValid = useMemo(() => {
@@ -191,36 +173,11 @@ function App() {
           <Heading level={3}>Upcoming reminders:</Heading>
           <Box gap="medium" style={{ width: "100%" }}>
             {reminders.map((reminder) => (
-              <Box
-                gap="small"
+              <ReminderCard
                 key={reminder.id}
-                pad={{
-                  top: "small",
-                  bottom: "medium",
-                  left: "small",
-                  right: "small",
-                }}
-                style={{
-                  backgroundColor: "#F9FAFB",
-                  borderRadius: "8px",
-                }}
-                align="start"
-              >
-                <Box
-                  style={{ width: "100%" }}
-                  direction="row"
-                  justify="between"
-                >
-                  <Text style={{ fontWeight: "800", textAlign: "left" }}>
-                    {formatReminderDate(reminder.date)}
-                  </Text>
-                  <Button
-                    icon={<Trash color="brand" />}
-                    onClick={() => deleteReminder(reminder.id)}
-                  />
-                </Box>
-                <Text>{reminder.content}</Text>
-              </Box>
+                reminder={reminder}
+                onUpdateReminders={updateReminders}
+              />
             ))}
           </Box>
         </Box>
