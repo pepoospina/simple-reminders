@@ -3,13 +3,20 @@ import { RemindersService } from './reminders.service';
 import { RemindersRepository } from './reminders.repository';
 
 import dotenv from 'dotenv';
-import { config } from '../app';
+import { config } from '../config';
+import { TimeService } from './time.service';
+import { EmailService, EmailServiceConfig } from './email.service';
+import { NotificationsService, NotificationsServiceConfig } from './notifications.service';
+import { TimeServiceMock } from './time.service.mock';
 
 // Load environment variables from .env file
 dotenv.config();
 
 export interface Services {
   reminders: RemindersService;
+  time: TimeService;
+  email: EmailService;
+  notifications: NotificationsService;
 }
 
 export interface ServicesConfig {
@@ -17,18 +24,41 @@ export interface ServicesConfig {
     region: string;
     endpoint?: string;
   };
+  email: EmailServiceConfig;
+  notifications: NotificationsServiceConfig;
 }
 
 const DEBUG = true;
 
 export const createServices = (config: ServicesConfig): Services => {
-  const repo = new RemindersRepository(config.dynamo);
+  const time = new TimeService();
+  const repo = new RemindersRepository(config.dynamo, time);
+  const reminders = new RemindersService(repo);
+  const email = new EmailService(config.email);
+  const notifications = new NotificationsService(reminders, email, time, config.notifications);
+
   return {
-    reminders: new RemindersService(repo),
+    reminders,
+    time,
+    email,
+    notifications,
   };
 };
 
+export const createTestServices = (config: ServicesConfig): Services => {
+  const time = new TimeServiceMock();
+  const repo = new RemindersRepository(config.dynamo, time);
+  const reminders = new RemindersService(repo);
+  const email = new EmailService(config.email);
+  const notifications = new NotificationsService(reminders, email, time, config.notifications);
 
+  return {
+    reminders,
+    time,
+    email,
+    notifications,
+  };
+};
 
 export const attachServices: RequestHandler = async (request, response, next) => {
   if (DEBUG) console.log('Attach services', config);

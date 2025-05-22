@@ -10,6 +10,7 @@ import { attachServices } from './src/services';
 import { router } from './router';
 import { cronJob } from './cron.job';
 import { createServices } from './src/services';
+import { config } from './config';
 
 export const buildApp = (router?: Router): Application => {
     const app = express();
@@ -31,12 +32,7 @@ export const buildApp = (router?: Router): Application => {
 
 const app = buildApp(router);
 
-export const config = process.env.AWS_SAM_LOCAL === 'true' ? {dynamo : {
-    region: process.env.AWS_REGION as string,
-    endpoint: process.env.DYNAMO_ENDPOINT,
-  }} : {dynamo : {
-    region: process.env.AWS_REGION as string,
-  }};
+
 
 export const api = serverlessExpress({ app });
 export const cron = cronJob(createServices(config));

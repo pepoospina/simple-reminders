@@ -1,8 +1,9 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateReminderPayload, Reminder } from './types/reminders.types';
+import { CreateReminderPayload, Reminder, STATUS } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
+import { TimeService } from './time.service';
 
 const DEBUG = true;
 
@@ -10,7 +11,7 @@ export class RemindersRepository {
   private readonly tableName = 'Reminders';
   private readonly client: DynamoDBDocumentClient;
 
-  constructor(config: { region: string; endpoint?: string }) {
+  constructor(config: { region: string; endpoint?: string }, protected time: TimeService) {
     const clientConfig = { ...config };
 
     // Add dummy credentials when using a local endpoint
@@ -27,6 +28,8 @@ export class RemindersRepository {
     const reminderItem: Reminder = {
       ...reminder,
       id: uuidv4(),
+      status: STATUS.PENDING,
+      createdAt: this.time.now(),
     };
 
     const params = {
@@ -48,15 +51,42 @@ export class RemindersRepository {
     }
   }
 
-  async getReminders(): Promise<Reminder[]> {
-    if (DEBUG) console.log('Getting reminders');
-    const params = {
-      TableName: this.tableName,
-    };
+  async getReminders(filters?: { before: number; status: string }): Promise<Reminder[]> {
+    if (DEBUG) console.log('Getting reminders', filters ? `with filters: ${JSON.stringify(filters)}` : '');
 
     try {
-      const result = await this.client.send(new ScanCommand(params));
-      return (result.Items as Reminder[]) || [];
+      let reminders: Reminder[] = [];
+
+      if (!filters) {
+        const scanParams = {
+          TableName: this.tableName,
+        };
+
+        const result = await this.client.send(new ScanCommand(scanParams));
+        reminders = (result.Items as Reminder[]) || [];
+      } else {
+        const queryParams: any = {
+          TableName: this.tableName,
+          IndexName: 'DateIndex',
+          KeyConditionExpression: '#status = :status',
+          ExpressionAttributeNames: {
+            '#status': 'status',
+            '#date': 'date',
+          },
+          ExpressionAttributeValues: {
+            ':status': filters.status || 'PENDING', // Default to PENDING if not provided
+          },
+        };
+
+        queryParams.KeyConditionExpression += ' AND #date <= :date';
+        queryParams.ExpressionAttributeValues[':date'] = filters.before;
+
+        const result = await this.client.send(new QueryCommand(queryParams));
+        reminders = (result.Items as Reminder[]) || [];
+      }
+
+      // Sort reminders by createdAt in descending order (most recent first)
+      return reminders.sort((a, b) => a.date - b.date);
     } catch (error) {
       console.error('Error getting reminders:', error);
       throw new Error('Failed to get reminders');
@@ -77,6 +107,30 @@ export class RemindersRepository {
     } catch (error) {
       console.error('Error deleting reminder:', error);
       throw new Error('Failed to delete reminder');
+    }
+  }
+
+  async updateReminder(reminder: { id: string; status: STATUS }): Promise<void> {
+    if (DEBUG) console.log('Updating reminder:', reminder);
+    const params = {
+      TableName: this.tableName,
+      Key: {
+        id: reminder.id
+      },
+      UpdateExpression: 'SET #status = :status',
+      ExpressionAttributeNames: {
+        '#status': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':status': reminder.status
+      }
+    };
+
+    try {
+      await this.client.send(new UpdateCommand(params));
+    } catch (error) {
+      console.error('Error updating reminder:', error);
+      throw new Error('Failed to update reminder');
     }
   }
 }
