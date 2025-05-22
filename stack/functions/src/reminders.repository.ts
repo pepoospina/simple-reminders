@@ -86,7 +86,7 @@ export class RemindersRepository {
       }
       
       // Sort reminders by createdAt in descending order (most recent first)
-      return reminders.sort((a, b) => b.date - a.date);
+      return reminders.sort((a, b) => a.date - b.date);
     } catch (error) {
       console.error('Error getting reminders:', error);
       throw new Error('Failed to get reminders');
