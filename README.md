@@ -4,6 +4,16 @@ A simple app to practice AWS SAM, API Gateway, Lambda, S3, DynamoDB, and Email n
 
 You need AWS CLI and SAM CLI installed and configured (authenticated to admin an AWS Account). You also need docker.
 
+## Comments on the App Architecture
+
+- We use SAM CLI to manage the deployment of the app.
+- We use one function to handle all API requests and `express` to route inside. This was preferred over per route gateway paths where logic would be split between SAM config and TS code.
+- We use one scheduled function triggered every minute to check for pending reminders. This was preferred over complex delayed execution configurations (its simpler and cheaper).
+- We use a class based architecture with clear dependencies through constructor injection. This helps with testing and makes the code more maintainable.
+- Some simple, useful but not exhaustive tests were used to facilitate the development process. One integration test was needed to check SES was working locally. This test is disabled.
+- We preferred the use secondary indexes on DynamoDB over inmemory filtering to get reminders by date.
+- I build a simple frontend application to test the API. Its functional. There are many improvements that could be made, but its pretty useful.
+
 ## Run Tests
 
 ```
