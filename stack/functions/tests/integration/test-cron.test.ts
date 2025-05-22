@@ -11,7 +11,7 @@ dotenv.config({
   path: './.env.test', // Path is relative to the current working directory (project root)
 });
 
-describe.only('Create reminder', function () {
+describe.skip('Create reminder', function () {
   const T0 = 1747820497000;
 
   console.log('process.env.AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID);

@@ -4,7 +4,7 @@ import { resetDB } from '../test.db.utils';
 import { Reminder, STATUS } from '../../src/types/reminders.types';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '../../src/time.service';
 
-describe.skip('Test reminder API', function () {
+describe('Test reminder API', function () {
   let createResults: Reminder[];
   const T0 = 1747820497000;
 
