@@ -4,6 +4,7 @@ import { EmailService } from './email.service';
 import { ONE_MINUTE, TimeService } from './time.service';
 import { STATUS } from './types/reminders.types';
 
+const DEBUG = true;
 export interface NotificationsServiceConfig {
   EMAIL_TO: string;
 }
@@ -17,12 +18,20 @@ export class NotificationsService {
   ) {}
 
   async sendRemindersNotifications() {
+    if (DEBUG) console.log('Sending reminders notifications');
+
     const before = this.time.now() + 10 * ONE_MINUTE;
     const pending = await this.reminders.repo.getReminders({ before, status: STATUS.PENDING });
 
+    if (DEBUG) console.log('Found', pending.length, 'pending reminders');
+
     await Promise.all(
       pending.map(async (reminder) => {
+        if (DEBUG) console.log('Sending reminder notification:', reminder.content);
+
         const res = await this.emailService.sendEmail(this.config.EMAIL_TO, reminder.content);
+
+        if (DEBUG) console.log('Reminder notification sent:', res);
 
         this.reminders.repo.updateReminder({
           id: reminder.id,

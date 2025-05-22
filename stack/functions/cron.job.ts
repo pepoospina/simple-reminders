@@ -5,11 +5,9 @@ export const cronJob = (services: Services) => {
   return async (event: ScheduledEvent, context: Context) => {
     console.log('Executing cron job at:', new Date().toISOString());
     try {
-      const reminders = await services.reminders.repo.getReminders();
+      await services.notifications.sendRemindersNotifications();
 
-      console.log('Cron job found reminders:', reminders.length);
-
-      return { statusCode: 200, body: JSON.stringify({ success: true, count: reminders.length }) };
+      return { statusCode: 200, body: JSON.stringify({ success: true }) };
     } catch (error) {
       console.error('Error in cron job:', error);
 
