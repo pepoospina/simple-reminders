@@ -25,18 +25,21 @@ export class NotificationsService {
 
     if (DEBUG) console.log('Found', pending.length, 'pending reminders');
 
-    await Promise.all(
+    return await Promise.all(
       pending.map(async (reminder) => {
         if (DEBUG) console.log('Sending reminder notification:', reminder.content);
 
         const res = await this.emailService.sendEmail(this.config.EMAIL_TO, reminder.content);
+        const success = res.$metadata.httpStatusCode === 200;
 
-        if (DEBUG) console.log('Reminder notification sent:', res);
+        if (DEBUG) console.log('Reminder notification sent:', success);
 
         this.reminders.repo.updateReminder({
           id: reminder.id,
-          status: res.$metadata.httpStatusCode === 200 ? STATUS.DELIVERED : STATUS.FAILED,
+          status: success ? STATUS.DELIVERED : STATUS.FAILED,
         });
+
+        return success;
       }),
     );
   }

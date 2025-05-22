@@ -1,10 +1,10 @@
 import { expect, describe, it, beforeAll } from '@jest/globals';
 import { createServices } from '../../src/services';
-import { resetDB } from './test.db.utils';
+import { resetDB } from '../test.db.utils';
 import { Reminder, STATUS } from '../../src/types/reminders.types';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '../../src/time.service';
 
-describe('Create reminder', function () {
+describe('Test reminder API', function () {
   let createResults: Reminder[];
   const T0 = 1747820497000;
 
@@ -26,7 +26,7 @@ describe('Create reminder', function () {
     await resetDB();
   });
 
-  it('creates two reminders', async () => {
+  it('creates reminders', async () => {
     createResults = await Promise.all(
       [T0 - ONE_DAY - ONE_HOUR, T0 + 11 * ONE_MINUTE, T0 + 1 * ONE_HOUR].map(
         async (date, ix) => {

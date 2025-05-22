@@ -1,5 +1,5 @@
 import { ListTablesCommand, DeleteTableCommand, CreateTableCommand } from '@aws-sdk/client-dynamodb';
-import { createLocalDynamoClient } from '../../src/db.utils';
+import { createLocalDynamoClient } from '../src/db.utils';
 
 /**
  * Creates a DynamoDB client configured for local development

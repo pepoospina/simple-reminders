@@ -7,6 +7,7 @@ import { config } from '../config';
 import { TimeService } from './time.service';
 import { EmailService, EmailServiceConfig } from './email.service';
 import { NotificationsService, NotificationsServiceConfig } from './notifications.service';
+import { TimeServiceMock } from './time.service.mock';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,6 +32,21 @@ const DEBUG = true;
 
 export const createServices = (config: ServicesConfig): Services => {
   const time = new TimeService();
+  const repo = new RemindersRepository(config.dynamo, time);
+  const reminders = new RemindersService(repo);
+  const email = new EmailService(config.email);
+  const notifications = new NotificationsService(reminders, email, time, config.notifications);
+
+  return {
+    reminders,
+    time,
+    email,
+    notifications,
+  };
+};
+
+export const createTestServices = (config: ServicesConfig): Services => {
+  const time = new TimeServiceMock();
   const repo = new RemindersRepository(config.dynamo, time);
   const reminders = new RemindersService(repo);
   const email = new EmailService(config.email);
