@@ -21,23 +21,16 @@ const DEFAULT_TIME = "9:00";
 
 function App() {
   const [date, setDate] = useState("");
-  const [time, setTime] = useState(DEFAULT_TIME);
+  const [timeInput, setTimeInput] = useState(DEFAULT_TIME);
+
   const [dateTime, setDateTime] = useState<string>("");
   const [content, setContent] = useState("");
 
   const [reminders, setReminders] = useState<Reminder[]>([]);
 
-  // Combine date and time into a single ISO string
-  const combineDateTime = (dateValue: string, timeValue: string) => {
-    if (dateValue && timeValue) {
-      const [hours, minutes] = timeValue.split(":");
-      const fullDate = new Date(dateValue);
-      fullDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
-      setDateTime(fullDate.toISOString());
-    } else {
-      setDateTime("");
-    }
-  };
+  const [adding, setAdding] = useState(false);
+
+  const [oldTimeError, setOldTimeError] = useState(false);
 
   const updateReminders = () => {
     fetch(`${API_URL}/reminders`, {
@@ -56,7 +49,7 @@ function App() {
 
   const reset = () => {
     setDate("");
-    setTime(DEFAULT_TIME);
+    setTimeInput(DEFAULT_TIME);
     setDateTime("");
     setContent("");
   };
@@ -66,6 +59,8 @@ function App() {
       content,
       date: new Date(dateTime).getTime(),
     };
+
+    setAdding(true);
 
     fetch(`${API_URL}/reminders`, {
       method: "POST",
@@ -77,7 +72,12 @@ function App() {
       .then((res) => res.json())
       .then((data) => updateReminders())
       .then(() => reset())
-      .then(() => updateReminders());
+      .then(() => updateReminders())
+      .then(() => setAdding(false))
+      .catch((error) => {
+        console.error(error);
+        setAdding(false);
+      });
   };
 
   const deleteReminder = (id: string) => {
@@ -88,25 +88,48 @@ function App() {
       .then((data) => updateReminders());
   };
 
-  const isValid = useMemo(() => {
-    return content && date && time;
-  }, [content, date, time]);
+  const isReminderValid = useMemo(() => {
+    return content && date && dateTime;
+  }, [content, date, dateTime]);
 
   const onAdd = () => {
-    if (isValid) addReminder();
+    if (isReminderValid) addReminder();
   };
 
-  // Handle date change from DateInput
   const onDateChange = (value: string) => {
     setDate(value);
-    combineDateTime(value, time);
   };
 
-  // Handle time change from MaskedInput
   const onTimeChange = (value: string) => {
-    setTime(value);
-    combineDateTime(date, value);
+    setTimeInput(value);
   };
+
+  const validTime = useMemo(() => {
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    return timeRegex.test(timeInput) ? timeInput : undefined;
+  }, [timeInput]);
+
+  useEffect(() => {
+    if (date && validTime) {
+      const [hours, minutes] = validTime.split(":");
+      const fullDate = new Date(date);
+
+      fullDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+
+      // Check if the date is at least 10 minutes in the future
+      const now = new Date();
+      const tenMinutesFromNow = new Date(now.getTime() + 10 * 60 * 1000);
+
+      if (fullDate.getTime() > tenMinutesFromNow.getTime()) {
+        setDateTime(fullDate.toISOString());
+        setOldTimeError(false);
+      } else {
+        setOldTimeError(true);
+      }
+    } else {
+      setDateTime("");
+    }
+  }, [date, validTime]);
 
   return (
     <Box
@@ -115,13 +138,13 @@ function App() {
       pad="medium"
       className="App"
     >
-      <Heading level={2}>Simple email reminders</Heading>
+      <Heading level={2}>Add a reminder</Heading>
       <Box style={{ width: "100%" }} gap="small">
         <Box gap="small">
           <TextInput
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Enter a reminder"
+            placeholder="What"
           />
         </Box>
         <Box align="center" gap="small">
@@ -134,39 +157,38 @@ function App() {
             />
           </Box>
           <Box width="100%">
-            <MaskedInput
-              mask={[
-                {
-                  length: [1, 2],
-                  regexp: /^([0-1]?[0-9]|2[0-3])$/,
-                  placeholder: "hh",
-                },
-                { fixed: ":" },
-                {
-                  length: 2,
-                  regexp: /^[0-5][0-9]$/,
-                  placeholder: "mm",
-                },
-              ]}
-              value={time}
+            <TextInput
+              value={timeInput}
               onChange={(event) => onTimeChange(event.target.value as string)}
             />
           </Box>
         </Box>
 
         <Button
+          disabled={!isReminderValid || adding}
           margin={{ top: "medium" }}
           primary
-          label="Add"
+          label={adding ? "Adding..." : "Add"}
           onClick={onAdd}
         />
-        <Text size="small">
-          You will receive an email 10 min before the reminder
-        </Text>
+        {!oldTimeError ? (
+          <Text size="small">
+            You will receive an email 10 min before the reminder
+          </Text>
+        ) : (
+          <Text size="small" color="red">
+            Please select a time that is at least 10 minutes in the future
+          </Text>
+        )}
       </Box>
       {reminders.length > 0 && (
-        <Box gap="medium" style={{ width: "100%" }} margin={{ top: "large" }}>
-          <Heading level={3}>Upcoming reminders</Heading>
+        <Box
+          gap="medium"
+          style={{ width: "100%" }}
+          margin={{ top: "large" }}
+          align="center"
+        >
+          <Heading level={3}>Upcoming reminders:</Heading>
           <Box gap="medium" style={{ width: "100%" }}>
             {reminders.map((reminder) => (
               <Box
