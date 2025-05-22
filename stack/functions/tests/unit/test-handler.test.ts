@@ -1,6 +1,7 @@
 import { expect, describe, it, beforeAll } from '@jest/globals';
 import { createServices } from '../../src/services';
 import { resetDB } from './db.utils';
+import { STATUS } from '../../src/types/reminders.types';
 
 describe('Create reminder', function () {
   const services = createServices({
@@ -18,11 +19,13 @@ describe('Create reminder', function () {
     const result1 = await services.reminders.repo.createReminder({
       content: 'test reminder 1',
       date: 1747820397000,
+      status: STATUS.PENDING,
     });
 
     const result2 = await services.reminders.repo.createReminder({
       content: 'test reminder 2',
       date: 1747820497000,
+      status: STATUS.PENDING,
     });
 
     expect(result1.id).toBeDefined();

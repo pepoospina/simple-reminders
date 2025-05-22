@@ -4,12 +4,14 @@ import { RemindersRepository } from './reminders.repository';
 
 import dotenv from 'dotenv';
 import { config } from '../app';
+import { TimeService } from './time.service';
 
 // Load environment variables from .env file
 dotenv.config();
 
 export interface Services {
   reminders: RemindersService;
+  time: TimeService;
 }
 
 export interface ServicesConfig {
@@ -25,10 +27,9 @@ export const createServices = (config: ServicesConfig): Services => {
   const repo = new RemindersRepository(config.dynamo);
   return {
     reminders: new RemindersService(repo),
+    time: new TimeService(),
   };
 };
-
-
 
 export const attachServices: RequestHandler = async (request, response, next) => {
   if (DEBUG) console.log('Attach services', config);
