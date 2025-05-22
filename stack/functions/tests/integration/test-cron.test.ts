@@ -22,7 +22,7 @@ describe.only('Create reminder', function () {
       endpoint: 'http://localhost:8000',
     },
     email: {
-      from: 'test@example.com',
+      from: 'noreply@pepo.is',
       region: 'eu-north-1',
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
@@ -30,7 +30,7 @@ describe.only('Create reminder', function () {
       },
     },
     notifications: {
-      EMAIL_TO: 'test@example.com',
+      EMAIL_TO: 'pepo.ospina@gmail.com',
     },
   });
 
