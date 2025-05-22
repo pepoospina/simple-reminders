@@ -26,7 +26,7 @@ export const resetDB = async (): Promise<void> => {
       console.log('Deleted existing Reminders table');
     }
 
-    // Create new Reminders table
+    // Create new Reminders table with GSI for filtering
     await client.send(
       new CreateTableCommand({
         TableName: 'Reminders',
@@ -40,6 +40,36 @@ export const resetDB = async (): Promise<void> => {
           {
             AttributeName: 'id',
             AttributeType: 'S',
+          },
+          {
+            AttributeName: 'date',
+            AttributeType: 'N',
+          },
+          {
+            AttributeName: 'status',
+            AttributeType: 'S',
+          },
+        ],
+        GlobalSecondaryIndexes: [
+          {
+            IndexName: 'DateIndex',
+            KeySchema: [
+              {
+                AttributeName: 'status',
+                KeyType: 'HASH',
+              },
+              {
+                AttributeName: 'date',
+                KeyType: 'RANGE',
+              },
+            ],
+            Projection: {
+              ProjectionType: 'ALL',
+            },
+            ProvisionedThroughput: {
+              ReadCapacityUnits: 5,
+              WriteCapacityUnits: 5,
+            },
           },
         ],
         ProvisionedThroughput: {

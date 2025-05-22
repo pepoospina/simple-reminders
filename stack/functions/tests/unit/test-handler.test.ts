@@ -1,6 +1,6 @@
 import { expect, describe, it, beforeAll } from '@jest/globals';
 import { createServices } from '../../src/services';
-import { resetDB } from './db.utils';
+import { resetDB } from './test.db.utils';
 import { STATUS } from '../../src/types/reminders.types';
 
 describe('Create reminder', function () {

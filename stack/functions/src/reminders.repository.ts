@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateReminderPayload, Reminder } from './types/reminders.types';
 import { createLocalDynamoClient } from './db.utils';
@@ -48,15 +48,45 @@ export class RemindersRepository {
     }
   }
 
-  async getReminders(): Promise<Reminder[]> {
-    if (DEBUG) console.log('Getting reminders');
-    const params = {
-      TableName: this.tableName,
-    };
+  async getReminders(filters?: { before?: number; status?: string }): Promise<Reminder[]> {
+    if (DEBUG) console.log('Getting reminders', filters ? `with filters: ${JSON.stringify(filters)}` : '');
 
     try {
-      const result = await this.client.send(new ScanCommand(params));
+      // If no filters are provided, use scan to get all reminders
+      if (!filters || (filters.before === undefined && filters.status === undefined)) {
+        const scanParams = {
+          TableName: this.tableName,
+        };
+
+        const result = await this.client.send(new ScanCommand(scanParams));
+        return (result.Items as Reminder[]) || [];
+      }
+
+      const queryParams: any = {
+        TableName: this.tableName,
+        IndexName: 'DateIndex',
+        KeyConditionExpression: '#status = :status',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+          '#date': 'date',
+        },
+        ExpressionAttributeValues: {
+          ':status': filters.status || 'PENDING', // Default to PENDING if not provided
+        },
+      };
+
+      if (filters.before !== undefined) {
+        queryParams.KeyConditionExpression += ' AND #date <= :date';
+        queryParams.ExpressionAttributeValues[':date'] = filters.before;
+      } else {
+        queryParams.KeyConditionExpression += ' AND #date <= :date';
+        queryParams.ExpressionAttributeValues[':date'] = Date.now() + 1000 * 60 * 60 * 24 * 365 * 10;
+      }
+
+      const result = await this.client.send(new QueryCommand(queryParams));
+      
       return (result.Items as Reminder[]) || [];
+
     } catch (error) {
       console.error('Error getting reminders:', error);
       throw new Error('Failed to get reminders');
