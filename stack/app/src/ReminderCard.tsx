@@ -50,14 +50,21 @@ export const ReminderCard = (props: {
         justify="between"
         align="center"
       >
-        <Text style={{ fontWeight: "800", textAlign: "left" }}>
-          {formatDate(reminder.date)}
-        </Text>
-        {reminder.status === STATUS.FAILED && (
-          <Text style={{ color: "red" }} size="small">
-            Failed to send :(
+        <Box direction="row" align="center" gap="small">
+          <Text style={{ fontWeight: "800", textAlign: "left" }}>
+            {formatDate(reminder.date)}
           </Text>
-        )}
+          {reminder.status === STATUS.FAILED && (
+            <Text style={{ color: "red" }} size="small">
+              Failed to send :(
+            </Text>
+          )}
+          {reminder.status === STATUS.DELIVERED && (
+            <Text style={{ color: "green" }} size="small">
+              Delivered :)
+            </Text>
+          )}
+        </Box>
         <Button
           icon={
             <Box align="center" justify="center" height="14px" width="14px">

@@ -100,10 +100,13 @@ Resources:
         - SESCrudPolicy:
             IdentityName: "pepo.ospina@gmail.com"
         - Statement:
-            - Effect: Allow
-              Action:
-                - ses:UseConfigurationSet
-              Resource: !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/*"
+          - Effect: Allow
+            Action:
+              - ses:SendEmail
+              - ses:SendRawEmail
+            Resource:
+              - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+              - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/my-first-configuration-set"
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
