@@ -56,7 +56,7 @@ export class RemindersRepository {
 
     try {
       let reminders: Reminder[] = [];
-      
+
       if (!filters) {
         const scanParams = {
           TableName: this.tableName,
@@ -84,7 +84,7 @@ export class RemindersRepository {
         const result = await this.client.send(new QueryCommand(queryParams));
         reminders = (result.Items as Reminder[]) || [];
       }
-      
+
       // Sort reminders by createdAt in descending order (most recent first)
       return reminders.sort((a, b) => a.date - b.date);
     } catch (error) {
@@ -107,6 +107,21 @@ export class RemindersRepository {
     } catch (error) {
       console.error('Error deleting reminder:', error);
       throw new Error('Failed to delete reminder');
+    }
+  }
+
+  async updateReminder(reminder: { id: string; status: STATUS }): Promise<void> {
+    if (DEBUG) console.log('Updating reminder:', reminder);
+    const params = {
+      TableName: this.tableName,
+      Item: reminder,
+    };
+
+    try {
+      await this.client.send(new PutCommand(params));
+    } catch (error) {
+      console.error('Error updating reminder:', error);
+      throw new Error('Failed to update reminder');
     }
   }
 }

@@ -21,8 +21,13 @@ export class NotificationsService {
     const pending = await this.reminders.repo.getReminders({ before, status: STATUS.PENDING });
 
     await Promise.all(
-      pending.map((reminder) => {
-        return this.emailService.sendEmail(this.config.EMAIL_TO, reminder.content);
+      pending.map(async (reminder) => {
+        const res = await this.emailService.sendEmail(this.config.EMAIL_TO, reminder.content);
+
+        this.reminders.repo.updateReminder({
+          id: reminder.id,
+          status: res.$metadata.httpStatusCode === 200 ? STATUS.DELIVERED : STATUS.FAILED,
+        });
       }),
     );
   }

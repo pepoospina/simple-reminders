@@ -1,6 +1,7 @@
 export enum STATUS {
-  PENDING = "PENDING",
-  DELIVERED = "DELIVERED",
+  PENDING = 'PENDING',
+  DELIVERED = 'DELIVERED',
+  FAILED = 'FAILED',
 }
 
 export interface Reminder {
@@ -11,4 +12,4 @@ export interface Reminder {
   status: STATUS;
 }
 
-export type CreateReminderPayload = Omit<Reminder, "id" | "status" | "createdAt">;
+export type CreateReminderPayload = Omit<Reminder, 'id' | 'status' | 'createdAt'>;
