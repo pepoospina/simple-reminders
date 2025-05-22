@@ -3,6 +3,7 @@ import { RemindersService } from './reminders.service';
 import { RemindersRepository } from './reminders.repository';
 
 import dotenv from 'dotenv';
+import { config } from '../app';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,18 +31,9 @@ export const createServices = (config: ServicesConfig): Services => {
 
 
 export const attachServices: RequestHandler = async (request, response, next) => {
-  const config = process.env.AWS_SAM_LOCAL === 'true' ? {
-    region: process.env.AWS_REGION as string,
-    endpoint: process.env.DYNAMO_ENDPOINT,
-  } : {
-    region: process.env.AWS_REGION as string,
-  };
-  
   if (DEBUG) console.log('Attach services', config);
 
-  (request as any).services = createServices({
-    dynamo: config,
-  });
+  (request as any).services = createServices(config);
 
   return next();
 };

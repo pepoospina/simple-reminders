@@ -8,3 +8,4 @@
 
 - May 20: 0.45h - Setup api from template
 - May 21: 4.30h - Deploy, connect frontend, build tests, connect DB
+- May 21: 2.30h - Configure local emulation, deploy to aws. CRUD working.

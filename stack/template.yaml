@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: functions/
-      Handler: app.handler
+      Handler: app.api
       Runtime: nodejs22.x
       Architectures:
         - x86_64
